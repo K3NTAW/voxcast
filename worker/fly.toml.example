@@ -1,0 +1,26 @@
+# Example fly.toml for the Voxcast audio worker.
+# `fly launch --no-deploy` from this directory generates a real fly.toml; this
+# file is committed as a reference of the settings we recommend.
+
+app = "voxcast-worker"            # change to your app name
+primary_region = "iad"             # change to your nearest region
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  auto_stop_machines = "stop"      # suspend when idle to save money
+  auto_start_machines = true       # wake on first WS connection (~2-3s cold start)
+  min_machines_running = 0
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory_mb = 512                  # bump to 1024 once you have >50 concurrent streams
+
+[env]
+  NODE_ENV = "production"
+  WORKER_PORT = "8787"
+  # Set these as secrets, NOT here in plaintext:
+  #   fly secrets set WORKER_SHARED_SECRET="..." WEB_APP_URL="https://your-domain"

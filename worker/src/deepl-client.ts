@@ -16,9 +16,11 @@ function cacheKey(text: string, src: string, tgt: string) {
 }
 
 let pool: Pool | null = null;
+let poolHost: string | null = null;
 function getPool(host: string) {
-  if (!pool || pool.origin !== `https://${host}`) {
+  if (!pool || poolHost !== host) {
     pool = new Pool(`https://${host}`, { connections: 4, pipelining: 1 });
+    poolHost = host;
   }
   return pool;
 }
