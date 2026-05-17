@@ -1,0 +1,35 @@
+{
+  "common": {
+    "signIn": "サインイン",
+    "signOut": "サインアウト",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "revoke": "無効化",
+    "rotate": "更新",
+    "copy": "コピー",
+    "copied": "コピーしました",
+    "loading": "読み込み中…",
+    "saved": "保存しました · たった今",
+    "missing": "—",
+    "comingSoon": "近日公開"
+  },
+  "landing": {
+    "tagline": "ライブ配信のためのリアルタイム翻訳。",
+    "subtitle": "Deepgram と DeepL のキーを持参して、OBS にブラウザソースを貼るだけ。",
+    "cta": "無料ではじめる",
+    "see": "OBS での見え方"
+  },
+  "nav": {
+    "overview": "概要",
+    "overlayBuilder": "オーバーレイ編集",
+    "profiles": "プロファイル",
+    "keys": "キー",
+    "tokens": "トークン",
+    "sessions": "セッション",
+    "settings": "設定"
+  },
+  "keys": { "title": "キー", "subtitle": "BYOK。保存時に暗号化。", "add": "キーを追加", "empty": "キーがまだありません。" },
+  "tokens": { "title": "オーバーレイトークン", "subtitle": "OBS 用 URL を発行。", "mint": "トークン発行" },
+  "settings": { "title": "設定", "subtitle": "プロフィール、言語、テーマ、データ。", "export": "JSON エクスポート", "destroy": "アカウント削除" }
+}

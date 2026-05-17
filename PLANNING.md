@@ -38,7 +38,7 @@ A web app where streamers sign in, paste their own Deepgram and DeepL API keys, 
 | Validation | Zod everywhere at trust boundaries | |
 | Encryption | `@noble/ciphers` AES-256-GCM with KMS-derived key | See §8 |
 | i18n | `next-intl` (App Router compatible) | Server + client translation |
-| Observability | Vercel Logs + Sentry + OpenTelemetry traces | |
+| Observability | Vercel Logs (structured JSON via console) | |
 | Tests | Vitest (unit), Playwright (e2e), `@axe-core/playwright` (a11y) | |
 | CI/CD | GitHub Actions → Vercel preview deploys, Prisma migrate on `main` | |
 
@@ -473,12 +473,9 @@ We target **OWASP ASVS 4.0 Level 2** and address every category in the **OWASP T
 - Subresource Integrity hashes for any CDN-loaded asset (we self-host fonts).
 
 ### Logging & Monitoring (A09)
-- Structured JSON logs (Pino) → Vercel → Logflare/Sentry.
-- `AuditLog` table for security-relevant events.
-- Sentry alerts on:
-  - >5% 5xx rate
-  - DeepL/Deepgram error spikes
-  - Auth failures > 100 / 5 min
+- Structured JSON logs via `console.log/error` → captured automatically by Vercel Logs (web) and the worker host's stdout (Fly.io / Render).
+- `AuditLog` table for security-relevant events — queryable via Prisma Studio.
+- Alerting: deferred. Add Vercel log drains to an external aggregator (Logflare, Better Stack, Axiom) when traffic warrants it. Until then, the audit table + Vercel's built-in log search are sufficient.
 - Never log: API keys, JWTs, raw IPs (we store SHA-256(IP || monthly-salt) only), full transcript content.
 
 ### SSRF (A10)

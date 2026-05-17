@@ -1,0 +1,49 @@
+{
+  "common": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "revoke": "Revoke",
+    "rotate": "Rotate",
+    "copy": "Copy",
+    "copied": "Copied",
+    "loading": "Loading…",
+    "saved": "Saved · just now",
+    "missing": "—",
+    "comingSoon": "Coming soon"
+  },
+  "landing": {
+    "tagline": "Real-time translation for live streams.",
+    "subtitle": "Bring your own Deepgram and DeepL keys. Drop the browser source into OBS. Done.",
+    "cta": "Start free",
+    "see": "See it in OBS"
+  },
+  "nav": {
+    "overview": "Overview",
+    "overlayBuilder": "Overlay builder",
+    "profiles": "Profiles",
+    "keys": "Keys",
+    "tokens": "Tokens",
+    "sessions": "Sessions",
+    "settings": "Settings"
+  },
+  "keys": {
+    "title": "Keys",
+    "subtitle": "BYOK — keys are encrypted at rest with AES-256-GCM. We never log plaintext.",
+    "add": "Add key",
+    "empty": "No keys yet. Add a Deepgram key to transcribe, and a DeepL key to translate."
+  },
+  "tokens": {
+    "title": "Overlay tokens",
+    "subtitle": "One token = one Browser Source URL for OBS or Meld Studio.",
+    "mint": "Mint token"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Your profile, locale, theme, and data.",
+    "export": "Export JSON",
+    "destroy": "Delete account"
+  }
+}

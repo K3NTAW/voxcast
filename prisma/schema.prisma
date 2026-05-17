@@ -1,0 +1,216 @@
+// Voxcast — Live Stream Translation
+// Per PLANNING.md §5. Postgres in prod; Prisma Postgres works out of the box.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// ───────────────────────── Auth.js core ─────────────────────────
+model User {
+  id              String    @id @default(cuid())
+  email           String?   @unique
+  emailVerified   DateTime?
+  name            String?
+  image           String?
+  locale          String    @default("en")
+  theme           String    @default("dark") // "light" | "dark"
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // soft delete for GDPR DSAR
+  lastAuthAt      DateTime? // for step-up reauth
+
+  accounts         Account[]
+  sessions         Session[]
+  apiKeys          ApiKey[]
+  overlayTokens    OverlayToken[]
+  subtitleProfiles SubtitleProfile[]
+  streamSessions   StreamSession[]
+  auditLogs        AuditLog[]
+
+  @@index([deletedAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String // "twitch" | "google" | "discord" | "dev"
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ───────────────────────── BYOK ─────────────────────────
+enum ApiProvider {
+  DEEPGRAM
+  DEEPL
+}
+
+model ApiKey {
+  id         String      @id @default(cuid())
+  userId     String
+  provider   ApiProvider
+  label      String      @default("Default")
+  ciphertext Bytes // AES-256-GCM(ciphertext || tag)
+  iv         Bytes // 12-byte nonce
+  keyVersion Int         @default(1)
+  last4      String
+  lastUsedAt DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  revokedAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider, label])
+  @@index([userId, provider])
+}
+
+// ───────────────────────── Subtitle styling ─────────────────────────
+model SubtitleProfile {
+  id              String   @id @default(cuid())
+  userId          String
+  name            String
+  isDefault       Boolean  @default(false)
+  // typography
+  fontFamily      String   @default("Inter")
+  fontWeight      Int      @default(700)
+  fontSizePx      Int      @default(48)
+  lineHeight      Float    @default(1.2)
+  letterSpacingEm Float    @default(0)
+  textColor       String   @default("#FFFFFF")
+  textStrokeColor String   @default("#000000")
+  textStrokePx    Int      @default(4)
+  textShadow      String?
+  textAlign       String   @default("center")
+  textCase        String   @default("none")
+  // background
+  bgMode          String   @default("solid")
+  bgColor         String   @default("#000000A6")
+  bgPaddingX      Int      @default(24)
+  bgPaddingY      Int      @default(12)
+  bgRadiusPx      Int      @default(12)
+  bgBlurPx        Int      @default(0)
+  // layout
+  position        String   @default("bottom")
+  maxWidthPct     Int      @default(80)
+  marginPx        Int      @default(48)
+  // behavior
+  fadeMs          Int      @default(150)
+  holdMs          Int      @default(1500)
+  maxLines        Int      @default(2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  overlayTokens OverlayToken[]
+
+  @@unique([userId, name])
+  @@index([userId, isDefault])
+}
+
+// ───────────────────────── Overlay tokens (OBS browser-source URL) ─────────────────────────
+model OverlayToken {
+  id                String    @id @default(cuid())
+  userId            String
+  tokenHash         String    @unique // SHA-256 of the plaintext token
+  sourceLanguage    String
+  targetLanguage    String
+  subtitleProfileId String?
+  label             String    @default("OBS Overlay")
+  createdAt         DateTime  @default(now())
+  lastUsedAt        DateTime?
+  revokedAt         DateTime?
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subtitleProfile SubtitleProfile? @relation(fields: [subtitleProfileId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+// ───────────────────────── Stream sessions (analytics + audit) ─────────────────────────
+model StreamSession {
+  id               String    @id @default(cuid())
+  userId           String
+  overlayTokenId   String?
+  startedAt        DateTime  @default(now())
+  endedAt          DateTime?
+  sourceLanguage   String
+  targetLanguage   String
+  durationSec      Int?
+  audioBytesIn     BigInt?
+  charsTranslated  Int?
+  deepgramReqCount Int?
+  deeplReqCount    Int?
+  errorCount       Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+// ───────────────────────── Audit log ─────────────────────────
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  KEY_CREATE
+  KEY_REVOKE
+  KEY_VIEW_LAST4
+  OVERLAY_TOKEN_MINT
+  OVERLAY_TOKEN_REVOKE
+  PROFILE_UPDATE
+  ACCOUNT_DELETE
+  DATA_EXPORT
+  WORKER_KEY_FETCH
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String?
+  action    AuditAction
+  ipHash    String?
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}

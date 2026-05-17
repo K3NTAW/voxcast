@@ -1,0 +1,35 @@
+{
+  "common": {
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "revoke": "Revocar",
+    "rotate": "Rotar",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "loading": "Cargando…",
+    "saved": "Guardado · ahora",
+    "missing": "—",
+    "comingSoon": "Próximamente"
+  },
+  "landing": {
+    "tagline": "Traducción en tiempo real para directos.",
+    "subtitle": "Trae tus propias claves de Deepgram y DeepL. Pega la fuente del navegador en OBS. Listo.",
+    "cta": "Empieza gratis",
+    "see": "Verlo en OBS"
+  },
+  "nav": {
+    "overview": "Resumen",
+    "overlayBuilder": "Editor de overlay",
+    "profiles": "Perfiles",
+    "keys": "Claves",
+    "tokens": "Tokens",
+    "sessions": "Sesiones",
+    "settings": "Ajustes"
+  },
+  "keys": { "title": "Claves", "subtitle": "Tus claves, cifradas en reposo.", "add": "Añadir clave", "empty": "Aún no hay claves." },
+  "tokens": { "title": "Tokens de overlay", "subtitle": "Un token = una URL para OBS.", "mint": "Crear token" },
+  "settings": { "title": "Ajustes", "subtitle": "Perfil, idioma, tema y datos.", "export": "Exportar JSON", "destroy": "Eliminar cuenta" }
+}
